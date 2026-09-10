@@ -1,0 +1,1 @@
+dotnet publish DeploymentRings/DeploymentRings.csproj -c Release -o publish -r win-x64 --self-contained false

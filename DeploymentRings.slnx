@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="publish.ps1" />
+  </Folder>
+  <Project Path="DeploymentRings.Test/DeploymentRings.Test.csproj" />
+  <Project Path="DeploymentRings/DeploymentRings.csproj" />
+</Solution>
