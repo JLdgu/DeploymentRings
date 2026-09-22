@@ -62,14 +62,29 @@ string outputPath = Path.Combine(
 
 using StreamWriter writer = new(outputPath, false, Encoding.UTF8);
 
-writer.WriteLine("DeviceIdRange,OSVersion,Count");
+string[] rings =
+[
+    "Ring 1",
+    "Ring 2",
+    "Ring 3",
+    "Ring 4",
+    "Ring 5"
+];
 
-foreach (var row in counts
-             .OrderBy(x => InventorySummary.BucketSortOrder(x.Key.Bucket))
-             .ThenBy(x => InventorySummary.ParseVersion(x.Key.Version)))
+writer.WriteLine($"OSVersion,{string.Join(',', rings)}");
+
+foreach (string version in counts.Keys
+             .Select(key => key.Version)
+             .Distinct()
+             .OrderBy(InventorySummary.ParseVersion))
 {
-    writer.WriteLine(
-        $"{row.Key.Bucket},{row.Key.Version},{row.Value}");
+    string[] ringCounts = rings
+        .Select(ring => counts.TryGetValue((ring, version), out int count)
+            ? count.ToString()
+            : "0")
+        .ToArray();
+
+    writer.WriteLine($"{version},{string.Join(',', ringCounts)}");
 }
 
 Console.WriteLine($"Output written to: {outputPath}");
@@ -103,4 +118,3 @@ static string[] ParseCsvLine(string line)
 
     return fields.ToArray();
 }
-
