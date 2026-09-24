@@ -76,7 +76,7 @@ writer.WriteLine($"OSVersion,{string.Join(',', rings)}");
 foreach (string version in counts.Keys
              .Select(key => key.Version)
              .Distinct()
-             .OrderBy(InventorySummary.ParseVersion))
+             .OrderByDescending(InventorySummary.ParseVersion))
 {
     string[] ringCounts = rings
         .Select(ring => counts.TryGetValue((ring, version), out int count)
