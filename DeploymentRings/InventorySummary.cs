@@ -2,27 +2,28 @@ namespace DeploymentRings;
 
 public static class InventorySummary
 {
-    public static void ValidateHeaders(string[] headers)
+    public static Tuple<int, int> ValidateHeader(string[] headers)
     {
-        if (headers.Length <= 5)
+        if (headers.Length != 12 && headers.Length != 53)
         {
             throw new InvalidDataException("CSV does not contain expected columns.");
         }
 
-        if (!string.Equals(headers[4], "Azure AD Device ID", StringComparison.Ordinal))
+        int AzureAdDeviceIdColumn = Array.IndexOf(headers, "Azure AD Device ID");
+        if (AzureAdDeviceIdColumn == -1)
         {
-            throw new InvalidDataException(
-                $"Expected column 4 to be 'Azure AD Device ID' but found '{headers[4]}'.");
+            throw new InvalidDataException("Unable to find column 'Azure AD Device ID'.");
+        }
+        int OsVersionColumn = Array.IndexOf(headers, "OS version");
+        if (OsVersionColumn == -1)
+        {
+            throw new InvalidDataException("Unable to find column 'OS version'.");
         }
 
-        if (!string.Equals(headers[5], "OS version", StringComparison.Ordinal))
-        {
-            throw new InvalidDataException(
-                $"Expected column 5 to be 'OS version' but found '{headers[5]}'.");
-        }
+        return Tuple.Create(AzureAdDeviceIdColumn, OsVersionColumn);
     }
 
-    public static string GetDeviceBucket(char c)
+    public static string GetDeviceDeploymentRing(char c)
     {
         c = char.ToUpperInvariant(c);
 
@@ -37,16 +38,6 @@ public static class InventorySummary
         };
     }
 
-    public static int BucketSortOrder(string bucket) =>
-        bucket switch
-        {
-            "Ring 1" => 0,
-            "Ring 2" => 1,
-            "Ring 3" => 2,
-            "Ring 4" => 3,
-            "Ring 5" => 4,
-            _ => 999
-        };
 
     public static string NormalizeVersion(string version)
     {
@@ -74,8 +65,7 @@ public static class InventorySummary
             : new Version(0, 0, 0);
     }
 
-    public static IReadOnlyDictionary<(string Bucket, string Version), int>
-        Summarise(IEnumerable<DeviceInventoryRow> rows)
+    public static IReadOnlyDictionary<(string Bucket, string Version), int> Summarise(IEnumerable<DeviceInventoryRow> rows)
     {
         var counts = new Dictionary<(string Bucket, string Version), int>();
 
@@ -86,16 +76,16 @@ public static class InventorySummary
                 continue;
             }
 
-            string bucket = GetDeviceBucket(row.AzureAdDeviceId[0]);
+            string deploymentRing = GetDeviceDeploymentRing(row.AzureAdDeviceId[0]);
 
-            if (bucket == "Unknown")
+            if (deploymentRing == "Unknown")
             {
                 continue;
             }
 
             string version = NormalizeVersion(row.OsVersion);
 
-            var key = (bucket, version);
+            var key = (deploymentRing, version);
 
             counts.TryGetValue(key, out int currentCount);
 

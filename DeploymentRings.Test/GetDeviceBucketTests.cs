@@ -22,7 +22,7 @@ public class GetDeviceBucketTests
         string expected)
     {
         await Assert.That(
-            InventorySummary.GetDeviceBucket(input))
+            InventorySummary.GetDeviceDeploymentRing(input))
             .IsEqualTo(expected);
     }
 
@@ -33,7 +33,7 @@ public class GetDeviceBucketTests
     public async Task Invalid_Characters_Return_Unknown(char input)
     {
         await Assert.That(
-            InventorySummary.GetDeviceBucket(input))
+            InventorySummary.GetDeviceDeploymentRing(input))
             .IsEqualTo("Unknown");
     }
 }

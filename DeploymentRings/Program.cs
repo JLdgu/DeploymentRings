@@ -35,7 +35,7 @@ if (string.IsNullOrWhiteSpace(headerLine))
 }
 
 string[] headers = ParseCsvLine(headerLine);
-InventorySummary.ValidateHeaders(headers);
+var (azureIdColumn, osVersionColumn) = InventorySummary.ValidateHeader(headers);
 
 var rows = new List<DeviceInventoryRow>();
 
@@ -44,14 +44,14 @@ while ((line = reader.ReadLine()) != null)
 {
     string[] columns = ParseCsvLine(line);
 
-    if (columns.Length <= 5)
+    if (columns.Length <= 12)
     {
         continue;
     }
 
     rows.Add(new DeviceInventoryRow(
-        AzureAdDeviceId: columns[4].Trim(),
-        OsVersion: columns[5].Trim()));
+        AzureAdDeviceId: columns[azureIdColumn].Trim(),
+        OsVersion: columns[osVersionColumn].Trim()));
 }
 
 var counts = InventorySummary.Summarise(rows);
@@ -71,18 +71,14 @@ string[] rings =
     "Ring 5"
 ];
 
-writer.WriteLine($"OSVersion,{string.Join(',', rings)}");
+writer.WriteLine($"OS Version,{string.Join(',', rings)}");
 
 foreach (string version in counts.Keys
              .Select(key => key.Version)
              .Distinct()
              .OrderByDescending(InventorySummary.ParseVersion))
 {
-    string[] ringCounts = rings
-        .Select(ring => counts.TryGetValue((ring, version), out int count)
-            ? count.ToString()
-            : "0")
-        .ToArray();
+    string[] ringCounts = [.. rings.Select(ring => counts.TryGetValue((ring, version), out int count) ? count.ToString() : "0")];
 
     writer.WriteLine($"{version},{string.Join(',', ringCounts)}");
 }
@@ -116,5 +112,5 @@ static string[] ParseCsvLine(string line)
 
     fields.Add(current.ToString());
 
-    return fields.ToArray();
+    return [.. fields];
 }

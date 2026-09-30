@@ -2,55 +2,26 @@ namespace DeploymentRings.Test;
 
 public class HeaderValidationTests
 {
-    [Test]
-    public void Valid_Headers_Do_Not_Throw()
-    {
-        var headers = new[]
-        {
-            "A",
-            "B",
-            "C",
-            "D",
-            "Azure AD Device ID",
-            "OS version"
-        };
-
-        InventorySummary.ValidateHeaders(headers);
-    }
 
     [Test]
-    public async Task Invalid_Device_Id_Header_Throws()
+    [Arguments(["A","B"])]
+    [Arguments([ "A", "B", "C", "D", "E", "OS version", "G", "H", "I", "J", "K", "L" ])]
+    [Arguments([ "A", "B", "C", "D", "E", "F", "OS version", "H", "I", "J", "K", "L" ])]
+    public async Task Azuze_AD_Device_ID__or_OS_Version_not_found_throws(string[] header)
     {
-        var headers = new[]
-        {
-            "A",
-            "B",
-            "C",
-            "D",
-            "Wrong Header",
-            "OS version"
-        };
-
-        await Assert.That(() =>
-            InventorySummary.ValidateHeaders(headers))
+        await Assert.That(() => InventorySummary.ValidateHeader(header))
             .Throws<InvalidDataException>();
     }
 
     [Test]
-    public async Task Invalid_OS_Version_Header_Throws()
+    [Arguments(4,5, new string[] {"A", "B", "C", "D", "Azure AD Device ID", "OS version", "G", "H", "I", "J", "K", "L" })]
+    [Arguments(11, 6, new string[] { "A", "B", "C", "D", "E", "F", "OS version", "H", "I", "J", "K", "Azure AD Device ID" })]
+    public async Task Valid_Headers_return_column_numbers( int azureIdColumn, int osVersionColumn,string[] header)
     {
-        var headers = new[]
-        {
-            "A",
-            "B",
-            "C",
-            "D",
-            "Azure AD Device ID",
-            "OS Version"
-        };
 
-        await Assert.That(() =>
-            InventorySummary.ValidateHeaders(headers))
-            .Throws<InvalidDataException>();
+        var actualColumns = InventorySummary.ValidateHeader(header);
+
+        await Assert.That(actualColumns.Item1).IsEqualTo(azureIdColumn);
+        await Assert.That(actualColumns.Item2).IsEqualTo(osVersionColumn);
     }
 }
