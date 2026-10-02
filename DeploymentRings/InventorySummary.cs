@@ -4,11 +4,6 @@ public static class InventorySummary
 {
     public static Tuple<int, int> ValidateHeader(string[] headers)
     {
-        if (headers.Length != 12 && headers.Length != 53)
-        {
-            throw new InvalidDataException("CSV does not contain expected columns.");
-        }
-
         int AzureAdDeviceIdColumn = Array.IndexOf(headers, "Azure AD Device ID");
         if (AzureAdDeviceIdColumn == -1)
         {
