@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="DeploymentRings.csproj" />
-  <Project Path="DeploymentRings.Test/DeploymentRings.Test.csproj" />
-</Solution>
