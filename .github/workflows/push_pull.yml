@@ -13,6 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Check solution items
+        shell: pwsh
+        run: ./.github/scripts/check-solution-items.ps1
+
       - name: Dotnet CI
         uses: ./.github/actions/dotnet-ci
         with:
