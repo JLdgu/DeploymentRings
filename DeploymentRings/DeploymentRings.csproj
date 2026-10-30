@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	<Authors>Jonathan Linstead</Authors>
+	<Company>Devon County Council</Company>
+	<Copyright>Copyright © 2026 Devon County Council</Copyright>
     <OutputType>Exe</OutputType>
+	<Version>0.610.30</Version>
   </PropertyGroup>
 
   <ItemGroup>
