@@ -1,10 +1,20 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path=".github/copilot-instructions.md" />
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="global.json" />
     <File Path="publish.ps1" />
+  </Folder>
+  <Folder Name="/.github/">
+    <File Path=".github/copilot-instructions.md" />
+    <Folder Name="/.github/actions/">
+      <Folder Name="/.github/actions/dotnet-ci/">
+        <File Path=".github/actions/dotnet-ci/action.yml" />
+      </Folder>
+    </Folder>
+    <Folder Name="/.github/workflows/">
+      <File Path=".github/workflows/push_pull.yml" />
+    </Folder>
   </Folder>
   <Project Path="DeploymentRings.Test/DeploymentRings.Test.csproj" />
   <Project Path="DeploymentRings/DeploymentRings.csproj" />
