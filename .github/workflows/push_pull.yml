@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Dotnet CI
         uses: ./.github/actions/dotnet-ci
         with:
