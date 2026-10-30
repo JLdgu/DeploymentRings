@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Validate release tag
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_NAME -notmatch '^v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$') {
+            throw "Release tags must use vMAJOR.MINOR.PATCH, optionally followed by a prerelease suffix."
+          }
+          "value=$($Matches.version)" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test --configuration Release
+
+      - name: Publish application
+        shell: pwsh
+        run: ./publish.ps1
+
+      - name: Install Velopack CLI
+        run: dotnet tool install --global vpk
+
+      - name: Download previous release
+        run: >-
+          vpk download github
+          --repoUrl "https://github.com/${{ github.repository }}"
+          --token "$env:GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pack release
+        run: >-
+          vpk pack
+          --packId DeploymentRings
+          --packTitle "Deployment Rings"
+          --packVersion "${{ steps.version.outputs.value }}"
+          --packDir publish
+          --mainExe DeploymentRings.exe
+          --outputDir Releases
+
+      - name: Publish GitHub release
+        run: >-
+          vpk upload github
+          --repoUrl "https://github.com/${{ github.repository }}"
+          --publish
+          --releaseName "Deployment Rings ${{ steps.version.outputs.value }}"
+          --tag "${{ github.ref_name }}"
+          --token "$env:GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
