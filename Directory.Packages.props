@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CsvHelper" Version="33.1.0" />
-    <PackageVersion Include="TUnit" Version="1.76.45" />
+    <PackageVersion Include="TUnit" Version="1.78.0" />
     <PackageVersion Include="Velopack" Version="1.2.161" />
   </ItemGroup>
 </Project>
