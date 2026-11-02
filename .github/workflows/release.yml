@@ -48,14 +48,45 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pack release
-        run: >-
-          vpk pack
-          --packId DeploymentRings
-          --packTitle "Deployment Rings"
-          --packVersion "${{ steps.version.outputs.value }}"
-          --packDir publish
-          --mainExe DeploymentRings.exe
-          --outputDir Releases
+        shell: pwsh
+        env:
+          CODE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.CODE_SIGNING_CERTIFICATE_BASE64 }}
+          CODE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.CODE_SIGNING_CERTIFICATE_PASSWORD }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          if ([string]::IsNullOrWhiteSpace($env:CODE_SIGNING_CERTIFICATE_BASE64)) {
+            throw "The CODE_SIGNING_CERTIFICATE_BASE64 Actions secret is required to sign releases."
+          }
+          if ([string]::IsNullOrWhiteSpace($env:CODE_SIGNING_CERTIFICATE_PASSWORD)) {
+            throw "The CODE_SIGNING_CERTIFICATE_PASSWORD Actions secret is required to sign releases."
+          }
+
+          $certificatePath = Join-Path $env:RUNNER_TEMP "deployment-rings-code-signing.pfx"
+          try {
+            $certificateBytes = [Convert]::FromBase64String($env:CODE_SIGNING_CERTIFICATE_BASE64)
+            [IO.File]::WriteAllBytes($certificatePath, $certificateBytes)
+            $signParams = "/fd sha256 /f `"$certificatePath`" /p `"$env:CODE_SIGNING_CERTIFICATE_PASSWORD`" /t http://time.certum.pl/"
+
+            vpk pack `
+              --packId DeploymentRings `
+              --packTitle "Deployment Rings" `
+              --packVersion $env:RELEASE_VERSION `
+              --packDir publish `
+              --mainExe DeploymentRings.exe `
+              --outputDir Releases `
+              --signParams $signParams
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Velopack packaging or code signing failed with exit code $LASTEXITCODE."
+            }
+          }
+          finally {
+            if (Test-Path $certificatePath) {
+              Remove-Item $certificatePath -Force
+            }
+          }
 
       - name: Publish GitHub release
         run: >-

@@ -5,7 +5,7 @@
 	<Company>Devon County Council</Company>
 	<Copyright>Copyright © 2026 Devon County Council</Copyright>
     <OutputType>Exe</OutputType>
-	<Version>0.610.30</Version>
+	<Version>0.611.01</Version>
   </PropertyGroup>
 
   <ItemGroup>
