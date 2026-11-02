@@ -3,6 +3,8 @@ using System.IO.Compression;
 using System.Text;
 using Velopack;
 
+#if !DEBUG
+
 VelopackApp.Build().Run();
 var mgr = new UpdateManager("https://github.com/JLdgu/DeploymentRings");
 var newVersion = await mgr.CheckForUpdatesAsync();
@@ -13,6 +15,7 @@ if (newVersion is not null)
     mgr.ApplyUpdatesAndRestart(newVersion);
     return;
 }
+#endif
 
 string downloadsFolder = Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
