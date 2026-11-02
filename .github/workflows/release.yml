@@ -34,7 +34,7 @@ jobs:
 
       - name: Publish application
         shell: pwsh
-        run: ./publish.ps1
+        run: ./publish.ps1 -Pack $false
 
       - name: Install Velopack CLI
         run: dotnet tool install --global vpk
