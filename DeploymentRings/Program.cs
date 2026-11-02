@@ -59,11 +59,6 @@ while ((line = reader.ReadLine()) != null)
 {
     string[] columns = ParseCsvLine(line);
 
-    if (columns.Length <= 12)
-    {
-        continue;
-    }
-
     rows.Add(new DeviceInventoryRow(
         AzureAdDeviceId: columns[azureIdColumn].Trim(),
         OsVersion: columns[osVersionColumn].Trim()));
